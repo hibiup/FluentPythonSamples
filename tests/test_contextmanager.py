@@ -23,7 +23,7 @@ def looking_glass():
             print(msg)
 
 from unittest import TestCase
-class TestGenerator(TestCase):
+class TestContextManager(TestCase):
     def test_context_manager(self):
         with looking_glass() as lg:
             print("Reverse string")
