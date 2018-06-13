@@ -18,7 +18,7 @@ def _(text):                            # 因为这函数服从它的主要函�
     content = html.escape(text).replace('\n', '<br>\n')
     return '<p>{0}</p>'.format(content)
 
-@htmlize.register(numbers.Integral)      # int
+@htmlize.register(numbers.Integral)      # 处理 int
 def _(n):
     return '<pre>{0} (0x{0:x})</pre>'.format(n)
 
