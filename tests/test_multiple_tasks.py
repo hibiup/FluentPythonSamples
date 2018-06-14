@@ -5,22 +5,26 @@ import random
 import threading
 from concurrent import futures
 import datetime
+import asyncio
 
 def do_something(timeout):
     thread_id = threading.get_ident()
-    print(f"Thread - {thread_id}: will runs for {timeout+1} second(s).")
+    print(f"Thread[{thread_id}]: will runs for {timeout+1} second(s).")
     time.sleep(timeout+1)
     print(f"[{datetime.datetime.utcnow()}] - Thread - {thread_id}: is done")
     return thread_id, timeout
 
 def do_something_with_coroutine(timeout):
     thread_id = threading.get_ident()    # 取得 thread id
-    print(f"Thread - {threading.get_ident()}: will runs for {timeout+1} second(s).")
+    print(f"Thread[{threading.get_ident()}]: will runs for {timeout+1} second(s).")
     yield
     new_thread_id = threading.get_ident()    # 再次取得 thread id 会发现在多线程状态下，coroutine 会"漂移"到新的线程中去
     time.sleep(timeout+1)
-    print(f"[{datetime.datetime.utcnow()}] - Thread - {new_thread_id}: is done")
+    print(f"[{datetime.datetime.utcnow()}] - Thread[{new_thread_id}]: is done")
     yield f"{thread_id} -> {new_thread_id}", timeout   # 返回（新旧）线程 ID 和 timeout 以示区别
+
+async def do_something_with_asyncio(timeout):
+    return do_something(timeout)
 
 class TestConcurrentProcessing(TestCase):
     thread_number = 5
@@ -65,3 +69,24 @@ class TestConcurrentProcessing(TestCase):
             future_list = [executor.submit(lambda c: next(c), coroutine) for coroutine in coroutines]
             completed_tasks = [ future.result() for future in futures.as_completed(future_list)]
             print(f"All threads {completed_tasks} are done!")
+
+    def test_asyncio(self):
+        def future_callback(future):
+            print(f"Thread[{threading.get_ident()}] - Future saying: {future.result()}")
+
+        loop = asyncio.get_event_loop()
+
+        tasks = [asyncio.Task(do_something_with_asyncio(timeout), loop=loop) for timeout in self.time_slots]
+        print("All tasks are created!!")
+
+        for task in tasks:
+            task.add_done_callback(future_callback)
+        print("Tasks' future are set.")
+
+        loop.run_until_complete(asyncio.wait(tasks))
+
+        loop.close()
+        print(f"All threads {tasks} are done!")
+
+        for task in tasks:
+            print(task.result())
