@@ -24,7 +24,16 @@ def do_something_with_coroutine(timeout):
     yield f"{thread_id} -> {new_thread_id}", timeout   # 返回（新旧）线程 ID 和 timeout 以示区别
 
 async def do_something_with_asyncio(timeout):
-    return do_something(timeout)
+    '''
+    这个函数和 do_something() 非常类似，但是使用了 非阻塞 asyncio.sleep() 来挂起协程，
+    await 关键字在遇到非阻塞调用的时候会让出当前协程，因此我们可以看到其他并行的协程会获得继续执行的机会。
+    '''
+    thread_id = threading.get_ident()
+    print(f"Thread[{thread_id}]: will runs for {timeout+1} second(s).")
+    await asyncio.sleep(timeout)  # 非阻塞式 time.sleep()
+    print(f"[{datetime.datetime.utcnow()}] - Thread - {thread_id}: is done")
+    return thread_id, timeout
+
 
 class TestConcurrentProcessing(TestCase):
     thread_number = 5
@@ -48,45 +57,57 @@ class TestConcurrentProcessing(TestCase):
             completed_tasks = [ future.result() for future in futures.as_completed(future_list)]
             print(f"All threads {completed_tasks} are done!")
 
+    def test_asyncio(self):
+        '''
+        并发协程：总是按执行时间快慢输出结果，但是输入的顺序未必是按时间排序的。因为使用了异步 io（asyncio），因此协程之间不会互相阻塞
+
+        参考：http://python.jobbole.com/87310/
+        '''
+        loop = asyncio.get_event_loop()
+
+        # 随机定义任务顺序
+        tasks = [asyncio.ensure_future(do_something_with_asyncio(timeout), loop=loop) for timeout in self.time_slots]
+        print("All tasks are created!!")
+
+        # 可选: 为 Future 设置 callback
+        def future_callback(future):
+            print(f"Thread[{threading.get_ident()}] - Future saying: {future.result()}")
+
+        for task in tasks:
+            task.add_done_callback(future_callback)
+        print("Tasks' future are set.")
+
+        # 执行并发协程，会看到任务按时间循序完成输出
+        '''
+        注意: run_until_complete() 本身是阻塞的，因此5个协程都执行完后才会进入下一指令，可以将该循环包装成另一个
+        协程 (async def ...)，然后使用 await asyncio.as_completed() 逐个获得以非阻塞方式获取结果:
+        ====
+        async def run_loop(tasks, process):
+            for task in asyncio.as_completed(tasks):
+                result = await task
+                process(result)
+
+        loop.run_until_complete(run_loop(tasks, lambda x: print(x)))
+        '''
+        loop.run_until_complete(asyncio.wait(tasks))
+        for task in tasks:
+            print(task.result())
+
+        # 结束
+        loop.close()
+        print(f"All threads {tasks} are done!")
+
     def test_coroutine(self):
-        # 并发提交
+        '''
+        （不好的例子）非并发协程：因为没有使用异步 io（asyncio.sleep()）来暂停程序，因此任务会一个一个阻塞方式执行
+        '''
+        # 随机定义任务顺序
         coroutines = [do_something_with_coroutine(timeout) for timeout in self.time_slots]
         [next(coroutine) for coroutine in coroutines]
         print("All thread submitted.")
 
         # 但是一个一个地阻塞执行，不会并发执行
         print(datetime.datetime.utcnow())
+
+        # 结束
         [print(f"Retuen with {next(coroutine)}") for coroutine in coroutines]
-
-    def test_coroutine_with_thread(self):
-        # 并发提交
-        coroutines = [do_something_with_coroutine(timeout) for timeout in self.time_slots]
-        [next(coroutine) for coroutine in coroutines]
-        print("All thread submitted.")
-
-        # 并发执行协程是可能的，coroutine 所属线程也会发生变化.
-        with futures.ThreadPoolExecutor(self.thread_number) as executor:
-            future_list = [executor.submit(lambda c: next(c), coroutine) for coroutine in coroutines]
-            completed_tasks = [ future.result() for future in futures.as_completed(future_list)]
-            print(f"All threads {completed_tasks} are done!")
-
-    def test_asyncio(self):
-        def future_callback(future):
-            print(f"Thread[{threading.get_ident()}] - Future saying: {future.result()}")
-
-        loop = asyncio.get_event_loop()
-
-        tasks = [asyncio.Task(do_something_with_asyncio(timeout), loop=loop) for timeout in self.time_slots]
-        print("All tasks are created!!")
-
-        for task in tasks:
-            task.add_done_callback(future_callback)
-        print("Tasks' future are set.")
-
-        loop.run_until_complete(asyncio.wait(tasks))
-
-        loop.close()
-        print(f"All threads {tasks} are done!")
-
-        for task in tasks:
-            print(task.result())
