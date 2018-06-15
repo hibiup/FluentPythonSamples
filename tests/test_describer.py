@@ -47,3 +47,6 @@ class TestDescriber(TestCase):
         print(f"[d.meter] Visit class property will trigger describer method: {d.meter}")             # 触发 __get__()
         print(f"[d.foot] Visit class property will trigger describer method: {d.foot}")               # 触发 __get__()
         print(f"[d.new_meter] Visit instance property will not trigger describer method: {d.new_meter}")    # 不会触发 __get__()
+        
+        d.foot=100             # 如果设置 d.foot，因为触发它的 Foot.__set__()，因此得到的 meter = foot/3.2808
+        print(f"[d.meter] meter = foot/3.2808 = {d.meter}")
