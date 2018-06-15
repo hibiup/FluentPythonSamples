@@ -57,15 +57,16 @@ class TestConcurrentProcessing(TestCase):
             completed_tasks = [ future.result() for future in futures.as_completed(future_list)]
             print(f"All threads {completed_tasks} are done!")
 
+
     def test_asyncio(self):
         '''
-        并发协程：总是按执行时间快慢输出结果，但是输入的顺序未必是按时间排序的。因为使用了异步 io（asyncio），因此协程之间不会互相阻塞
+        （良好的例子）并发协程：总是按执行时间快慢输出结果，但是输入的顺序未必是按时间排序的。因为使用了异步 io（asyncio），因此协程之间不会互相阻塞
 
         参考：http://python.jobbole.com/87310/
         '''
         loop = asyncio.get_event_loop()
 
-        # 随机定义任务顺序
+        # 随即定义任务顺序
         tasks = [asyncio.ensure_future(do_something_with_asyncio(timeout), loop=loop) for timeout in self.time_slots]
         print("All tasks are created!!")
 
@@ -78,20 +79,12 @@ class TestConcurrentProcessing(TestCase):
         print("Tasks' future are set.")
 
         # 执行并发协程，会看到任务按时间循序完成输出
-        '''
-        注意: run_until_complete() 本身是阻塞的，因此5个协程都执行完后才会进入下一指令，可以将该循环包装成另一个
-        协程 (async def ...)，然后使用 await asyncio.as_completed() 逐个获得以非阻塞方式获取结果:
-        ====
         async def run_loop(tasks, process):
             for task in asyncio.as_completed(tasks):
                 result = await task
                 process(result)
 
         loop.run_until_complete(run_loop(tasks, lambda x: print(x)))
-        '''
-        loop.run_until_complete(asyncio.wait(tasks))
-        for task in tasks:
-            print(task.result())
 
         # 结束
         loop.close()
@@ -99,9 +92,9 @@ class TestConcurrentProcessing(TestCase):
 
     def test_coroutine(self):
         '''
-        （不好的例子）非并发协程：因为没有使用异步 io（asyncio.sleep()）来暂停程序，因此任务会一个一个阻塞方式执行
+        （不好的例子）非并发协程：因为没有使用异步 asyncio.sleep() 来暂停程序，因此任务会一个一个以阻塞方式执行
         '''
-        # 随机定义任务顺序
+        # 并发提交
         coroutines = [do_something_with_coroutine(timeout) for timeout in self.time_slots]
         [next(coroutine) for coroutine in coroutines]
         print("All thread submitted.")
@@ -111,3 +104,26 @@ class TestConcurrentProcessing(TestCase):
 
         # 结束
         [print(f"Retuen with {next(coroutine)}") for coroutine in coroutines]
+
+    def test_coroutine_with_thread(self):
+        '''
+        如果我们必须在协程中调用阻塞调用，一个改进的作法是使用 loop.run_in_executor() 方法和线程池结合
+        这种情况下实际上等于多线程
+        '''
+        with futures.ThreadPoolExecutor(self.thread_number) as executor:
+            loop = asyncio.get_event_loop()
+
+            # run_in_executor() 将阻塞调用包装成 Future
+            tasks = [loop.run_in_executor(executor, do_something, timeout) for timeout in self.time_slots]
+
+            '''
+            然后可以交由 run_until_complete(), run_until_complete() 调用的时候会启动线程来执行
+
+            注意: run_until_complete() 本身是阻塞的，因此5个线程都执行完后才会进入下一指令，可以就像 test_asyncio() 
+            一样将该循环包装成另一个协程 (async def ...)，然后使用 await asyncio.as_completed() 逐个获得以非阻塞方式获取结果，
+            '''
+            loop.run_until_complete(asyncio.wait(tasks))
+            for task in tasks:
+                print(task.result())
+
+            loop.close()
