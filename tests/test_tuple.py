@@ -2,9 +2,14 @@ from unittest import TestCase
 
 import collections
 Card = collections.namedtuple('CARD', ['RANK', 'SUIT'])
+
+
 def fake(self):
     return str(self)
+
+
 Card.fake = fake
+
 
 class FrenchDeck:
     ranks = [str(n) for n in range(2, 11)] + list('JQKA')
@@ -48,9 +53,10 @@ class TestCard(TestCase):
             print(card)
     
     def test_add_method(self):
-        card = Card("A1","B2")
+        card = Card("A1", "B2")
         print(card.fake())
-    
+
+
 class TestTuple(TestCase):
     '''
     tuple 可以当作不可变数据库使用
@@ -200,7 +206,6 @@ print(found)
         print("set_loop_opt() with 1,000 data:   ", timeit(set_loop_opt, setup=DATA_SET_1, number=1))
         print("set_loop_opt() with 10,000 data:  ", timeit(set_loop_opt, setup=DATA_SET_2, number=1))
         print("set_loop_opt() with 100,000 data: ", timeit(set_loop_opt, setup=DATA_SET_3, number=1))
-
 
     def test_list_speed(self):
         '''
