@@ -1,5 +1,6 @@
 import contextlib
 
+
 @contextlib.contextmanager
 def looking_glass():
     '''
@@ -22,7 +23,10 @@ def looking_glass():
         if msg:
             print(msg)
 
+
 from unittest import TestCase
+
+
 class TestContextManager(TestCase):
     def test_context_manager(self):
         with looking_glass() as lg:

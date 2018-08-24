@@ -20,6 +20,11 @@ def make_average(offset):
     return add_new_values, average
 
 
+who = "Jeff"
+def lambda_target(msg):
+    print(f"{who}: {msg}")
+
+
 class TestClosure(TestCase):
     def test_nonlocal_from_closure(self):
         offset = 1
@@ -30,3 +35,13 @@ class TestClosure(TestCase):
 
         add(20)
         assert(14 == avg())
+
+    def test_lambda(self):
+        mesage = "Print lambda"
+        who = "Bob"
+
+        def lambda_caller(lambda_target):
+            lambda_target(mesage)
+
+        lambda_caller(lambda s: lambda_target(s))
+        lambda_caller(lambda s: print(who))

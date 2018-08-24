@@ -1,7 +1,23 @@
 from unittest import TestCase
 from inspect import getgeneratorstate
 
+
+def generator_semu(start, end):
+    for x in range(start, end):
+        yield x
+
+
 class TestCoroutine(TestCase):
+    def test_generator_semu(self):
+        semu = generator_semu(1, 4)
+        assert(next(semu) == 1)
+        assert(next(semu) == 2)
+        assert(next(semu) == 3)
+        try:
+            next(semu)
+        except StopIteration:
+            pass
+
     def simple_coroutine(self, a):
         print('-> Started: a =', a)
         b = yield a

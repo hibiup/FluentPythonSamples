@@ -6,7 +6,7 @@ import numpy
 
 class TestListComprehension(TestCase):
     def test_list_set_generator(self):
-        # list comprehension - 能生成 list s和 set；预先s生成全部元素, not iterable, 没有 __next__()
+        # list comprehension - 能生成 list s和 set；生成全部元素, not iterable, 没有 __next__()
         l = [x for x in range(0, 10)]    # 得到 list, __iter__ 返回 list_iterable 对象
         assert(l[3] == 3)
 
@@ -27,8 +27,12 @@ class TestListComprehension(TestCase):
         n1 = numpy.arange(0, 10)
         assert(n[3] == n1[3])
 
-        # 而 set 用于 numpy 得到的是 set array
+        # 而 set 用于 numpy 得到的是只包含一个 set 元素的 array
         ns = numpy.array({x for x in range(0, 10)})
+        ns_set = ns.item(0)
+        assert(type(ns_set) == set)
+        lns = list(ns.item(0))
+        assert(lns[3] == n1[3])
 
         # generator 用于 array.array 和 numpy.array 也不同
         # array.array 会调用 generater，得到 array.array，和直接使用 list 或 set 一样
@@ -38,3 +42,6 @@ class TestListComprehension(TestCase):
         # 但是 numpy 视其为包含一个 generater 的单元素 numpy array
         na = numpy.array((x for x in range(0, 10)))
         # assert(na[3] == 3 )  #　理坏乐崩!
+        g_na = na.item(0)
+        assert(next(g_na) == 0)
+        assert(next(g_na) == 1)
