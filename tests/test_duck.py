@@ -66,6 +66,6 @@ class TestDucktyping(TestCase):
         duck.eat()
         duck.move()
 
-        # 实例绑定
+        # 实例组装
         duck.fly = MethodType(fly, duck)
         duck.fly()
