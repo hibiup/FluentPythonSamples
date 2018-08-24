@@ -7,7 +7,7 @@ class Bird(metaclass=ABCMeta):
     @classmethod
     def __subclasshook__(cls, C):
         if cls is Bird:
-            if any("__has_wing__" in B.__dict__ for B in C.__mro__):
+            if any("__has_wing__" in B.__dict__ for B in C.__mro__):   # C 是提请判断的对象在 isinstance 请求中是实例
                 return True
         return NotImplemented
     pass
@@ -15,7 +15,7 @@ class Bird(metaclass=ABCMeta):
 
 class Duck:
     """ 鸭类原形 """
-    __has_wing__ = True
+    __has_wing__ = True   # Bird 将借助这个标志来判断 Duck/duck 是否是它的子类
     speed = 1
     sound = "What's a duck say! quack! quack!!"
     movement = "A duck must can ~~~ swimming ~~~ at speed"
