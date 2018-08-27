@@ -85,9 +85,9 @@ class TestDuckTyping(TestCase):
         """
         # 定义父类
         class Bird(metaclass=ABCMeta):
-            import abc
+            from abc import abstractmethod
             greeting = "Hello, World!s"
-            @abc.abstractmethod
+            @abstractmethod
             def speak(self):
                 print("My id is:", id(self))
                 print(self.greeting)
