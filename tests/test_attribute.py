@@ -25,6 +25,7 @@ class Foo:
             raise AttributeError   # f.bar 会抛出这个异常，但是因为存在 __getattr__()，因此 python 会重新尝试
         return 'getattribute'
 
+
 class TestAttribute(TestCase):
     def test_Foo(self):
         f = Foo(10)
