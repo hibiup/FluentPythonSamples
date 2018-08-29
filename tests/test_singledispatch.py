@@ -29,7 +29,10 @@ def _(seq):
     inner = '</li>\n<li>'.join(htmlize(item) for item in seq)
     return '<ul>\n<li>' + inner + '</li>\n</ul>'
 
+
 from unittest import TestCase
+
+
 class TestSingledispatch(TestCase):
     def test_singledispatch(self):
         print(htmlize({1, 2, 3}))       # 调用缺省obj处理函数
