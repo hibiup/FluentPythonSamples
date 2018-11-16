@@ -2,7 +2,9 @@ import sys
 import getopt
 import argparse
 
-
+"""
+Run with arguments: -p 1 --timeout=2 -a 3 4 "5 6"
+"""
 if __name__ == "__main__":
     """ Test sys.args """
     print(f"Length of argument: {len(sys.argv)}, {sys.argv[0]}, {sys.argv[1]}, {sys.argv[2]}, and the rest: {sys.argv[3:]}")
