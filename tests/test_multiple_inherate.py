@@ -2,18 +2,23 @@ class A:
     def ping(self):
         print('ping:', self)
 
+
 class B(A):
     def pong(self):
         print('pong from B:', self)
+
 
 class C(A):
     def pong(self):
         print('PONG FROM C:', self)
 
+
 class D(C, B):
     pass
 
+
 from unittest import TestCase
+
 
 class DiamondTest(TestCase):
     def test_diamond(self):

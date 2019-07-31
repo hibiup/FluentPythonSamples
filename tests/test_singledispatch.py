@@ -3,9 +3,10 @@ from collections import abc
 import numbers
 import html
 
-'''
+"""
 @singledispatch 实现函数方法的重载。可以用于取代 if/elif/else 或 switch/case 控制。
-'''
+"""
+
 # 1) 用 singledispatch 定义一个缺省函数
 @singledispatch
 def htmlize(obj):                       # 处理缺省数据类型

@@ -9,6 +9,7 @@ class A:
     def __repr__(self):
         return "I'm A"
 
+
 class B:
     def __new__(cls, *args, **kwargs):
         print(f"B.__new__({args}, {kwargs})")
@@ -22,6 +23,8 @@ class B:
 
 
 from unittest import TestCase
+
+
 class TestHash(TestCase):
     def test_a_creation(self):
         a = A(1, a=2)

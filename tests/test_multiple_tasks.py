@@ -27,10 +27,10 @@ def do_something_with_coroutine(timeout):
 
 
 async def do_something_with_asyncio(timeout):
-    '''
+    """
     这个函数和 do_something() 非常类似，但是使用了 非阻塞 asyncio.sleep() 来挂起协程，
     await 关键字在遇到非阻塞调用的时候会让出当前协程，因此我们可以看到其他并行的协程会获得继续执行的机会。
-    '''
+    """
     thread_id = threading.get_ident()
     print(f"Thread[{thread_id}]: will runs for {timeout+1} second(s).")
     await asyncio.sleep(timeout)  # 非阻塞式 time.sleep()
@@ -61,11 +61,11 @@ class TestConcurrentProcessing(TestCase):
             print(f"All threads {completed_tasks} are done!")
 
     def test_asyncio(self):
-        '''
+        """
         （良好的例子）并发协程：总是按执行时间快慢输出结果，但是输入的顺序未必是按时间排序的。因为使用了异步 io（asyncio），因此协程之间不会互相阻塞
 
         参考：http://python.jobbole.com/87310/
-        '''
+        """
         loop = asyncio.get_event_loop()
 
         # 随即定义任务顺序
@@ -93,9 +93,9 @@ class TestConcurrentProcessing(TestCase):
         print(f"All threads {tasks} are done!")
 
     def test_coroutine(self):
-        '''
+        """
         （不好的例子）非并发协程：因为没有使用异步 asyncio.sleep() 来暂停程序，因此任务会一个一个以阻塞方式执行
-        '''
+        """
         # 并发提交
         coroutines = [do_something_with_coroutine(timeout) for timeout in self.parameters]
         [next(coroutine) for coroutine in coroutines]
@@ -108,10 +108,10 @@ class TestConcurrentProcessing(TestCase):
         [print(f"Retuen with {next(coroutine)}") for coroutine in coroutines]
 
     def test_coroutine_with_thread(self):
-        '''
+        """
         如果我们必须在协程中调用阻塞调用，一个改进的作法是使用 loop.run_in_executor() 方法和线程池结合
         这种情况下实际上等于多线程
-        '''
+        """
         with futures.ThreadPoolExecutor(self.thread_number) as executor:
             loop = asyncio.get_event_loop()
 

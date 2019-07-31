@@ -2,7 +2,7 @@ import functools
 
 
 class SampleZ(object):
-    '''
+    """
     类装饰器：
 
     类装饰器可能导致被装饰方法丢失 'self'。descriptor protocol
@@ -10,7 +10,7 @@ class SampleZ(object):
     定义一个 class decorator 可以通过重载 descriptor protocol 方法解决问题。
 
     参考：https://stackoverflow.com/questions/5469956/python-decorator-self-is-mixed-up
-    '''
+    """
     def __init__(self, func):
         self.func = func
 
@@ -34,14 +34,15 @@ class SampleZ(object):
 
 
 def sample(func):
-    '''
+    """
     函数装饰器
-    '''
+    """
     def wrapper(*args, **kwargs):
         if (SqlExecutor.sample_number != -1):
             kwargs["sql"] = kwargs["sql"] + " sample %d" % SqlExecutor.sample_number
         func(*args, **kwargs)
     return wrapper
+
 
 class SqlExecutor:
     sample_number = -1
@@ -55,6 +56,7 @@ class SqlExecutor:
 
 
 from unittest import TestCase
+
 
 class TestDecorator(TestCase):
     def test_decorator(self):

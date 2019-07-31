@@ -3,10 +3,10 @@ class Meter(object):
         self.value = float(value)
 
     def __get__(self, instance, owner):
-        '''
-        具有 Decriber 方法的类实例被引用 ( refer.property ) 的时候，会被转换成:
+        """
+        具有 Describer 方法的类实例被引用 ( refer.property ) 的时候，会被转换成:
         type(refer).__dict__['property'].__get__(refer, type(refer)) 调用:
-        '''
+        """
         print("Meter.__get__() is called", instance, owner)
         return self.value
 
@@ -17,18 +17,20 @@ class Meter(object):
         print("Meter.__set__() is called", instance, value)
         self.value = float(value)
 
+
 class Foot(object):
     def __get__(self, instance, owner):
-        '''
+        """
         当 describer 方法被触发的时候，instance 指向引用者(Distance)的实例，owner 则是引用类，因此我们可以从 instance 
         中获得 Meter的实例然后做转换。当然这也会递归触发 Metter.__get__()
-        '''
+        """
         print("Foot.__get__() is called", instance, owner)
         return instance.meter * 3.2808
 
     def __set__(self, instance, value):
         print("Foot.__set__() is called", instance, value)
         instance.meter = float(value) / 3.2808
+
 
 class Distance(object):
     meter = Meter()                      # class 自己调用自己的属性，不会触发 describer 方法
@@ -40,6 +42,8 @@ class Distance(object):
 
 
 from unittest import TestCase
+
+
 class TestDescriber(TestCase):
     def test_Distance(self):
         d =  Distance(10)       # 通过 __init__() 间接触发 __set__()

@@ -26,14 +26,14 @@ class TestCoroutine(TestCase):
         print('-> Received: c =', c)
     
     def test_simple_coroutine(self):
-        '''
+        """
         新建两个协程
-        '''
+        """
         coroutines = [self.simple_coroutine(i) for i in range(2)]
 
-        '''
+        """
         Primer
-        '''
+        """
         for coro in coroutines:
             ret = 0
             print(getgeneratorstate(coro))
@@ -42,10 +42,10 @@ class TestCoroutine(TestCase):
             print(getgeneratorstate(coro))
             print("Return " + str(ret))
 
-        '''
+        """
         模拟并发。修改一下即可实现事件驱动，例如通过循环检查 coroutine primer 的时候的返回值，来决定何时进一步激活哪个 coroutine。
         参考 test_texi.py 的例子
-        '''
+        """
         for coro in coroutines:
             ret = 0
             try:
@@ -88,9 +88,9 @@ class TestException(TestCase):
         print(getgeneratorstate(exc_coro))
 
         try:
-            '''
+            """
             Coroutine 的返回值会被包含在 StopIteration 异常中返回给调用方。
-            '''
+            """
             x = exc_coro.send(0)
         except StopIteration as stop_exc:
             print(stop_exc.value)

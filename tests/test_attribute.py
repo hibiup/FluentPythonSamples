@@ -1,25 +1,29 @@
 from unittest import TestCase
 
-'''
+
+"""
 访问属性( 如 f.x )的时候，Python 解释器会调用特殊的方法（如 __getattr__ 和 __setattr__）计算属性，”，当访问不存在的属性时
 才返回属性的值。
-'''
+"""
+
+
 class Foo:
     y = 100
+
     def __init__(self, x):
         self.x = x
 
     def __getattr__(self, name):
-        '''
+        """
         当 __getattribute__() 失效时调用，如果不存在则抛出 AttributeError
-        '''
+        """
         print("__getattr__() is called")
         return name
 
     def __getattribute__(self, name):
-        '''
+        """
         无论如何都会首先调用，即便存在 f.x，也会返回改函数的结果
-        '''
+        """
         print("__getattribute__() is called")
         if name == 'bar':
             raise AttributeError   # f.bar 会抛出这个异常，但是因为存在 __getattr__()，因此 python 会重新尝试

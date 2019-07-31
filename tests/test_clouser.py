@@ -21,6 +21,8 @@ def make_average(offset):
 
 
 who = "Jeff"
+
+
 def lambda_target(msg):
     print(f"{who}: {msg}")
 

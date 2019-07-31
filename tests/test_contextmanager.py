@@ -3,9 +3,9 @@ import contextlib
 
 @contextlib.contextmanager
 def looking_glass():
-    '''
+    """
     Test @contextmanager decorator, and surround `yield` with `try...except` for save
-    '''
+    """
     import sys
     original_write = sys.stdout.write
 

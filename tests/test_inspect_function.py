@@ -15,6 +15,8 @@ def tag(name, *content, cls:'html class tag'=None, **attrs) -> str:
 
 
 from unittest import TestCase
+
+
 class InspectTest(TestCase):
     def test_inspect(self):
         print("class annotations: ", tag.__annotations__)

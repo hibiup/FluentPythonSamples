@@ -4,6 +4,7 @@ import datetime, time
 import numpy as np
 import pandas as pd
 
+
 class TestLooping(TestCase):
     def __random_date(self, from_date, to_date, number):
 
@@ -59,12 +60,12 @@ class TestLooping(TestCase):
         print("DataFrame apply spent: " + str(t6 - t5))
 
     def test_map_vs_loop(self):
-        '''
+        """
         timeit模块提供了一种简便的方法来为 Python 中的小块代码进行计时：
           * 第一个参数为要执行计时的语句（statement）。按字符串的形式传入要执行的代码。
           * 第二个参数setup用于构建代码环境，可以用来导入需要的模块。
           * 最后的number指定了运行的次数。
-        '''
+        """
         import timeit
 
         TIMES = 10000

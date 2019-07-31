@@ -58,9 +58,9 @@ class TestCard(TestCase):
 
 
 class TestTuple(TestCase):
-    '''
+    """
     tuple 可以当作不可变数据库使用
-    '''
+    """
     def test_tuple(self):
         from collections import namedtuple
         Coordinate = namedtuple('COORDINATE', 'LATITUDE LONGITUDE')
@@ -144,9 +144,9 @@ class TestTuple(TestCase):
         print(memv.tolist())       # 输出 [-2, -1, 1024, 1, 2]
 
     def test_dictcomp(self):
-        '''
+        """
         字典推导（dict comprehension）可以从任何以键值对作为元素的可迭代对象中构建出字典。
-        '''
+        """
         DIAL_CODES = [
             (86, 'China'),
             (91, 'India'),
@@ -172,9 +172,9 @@ class TestTuple(TestCase):
         assert(d_proxy[2] == d[2])
 
     def test_set_speed(self):
-        '''
+        """
          比较在一个集合中查找与另一个集合重复的元素的速度
-        '''
+        """
 
         from timeit import timeit
         print()

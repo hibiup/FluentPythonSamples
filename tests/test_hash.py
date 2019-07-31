@@ -25,7 +25,10 @@ class Vector2d:
     def __repr__(self):
         return 'Vector({},{})'.format(self.__x, self.__y)
 
+
 from unittest import TestCase
+
+
 class TestHash(TestCase):
     def test_hash(self):
         v1 = Vector2d(1, 2)
