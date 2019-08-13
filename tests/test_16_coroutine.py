@@ -115,3 +115,38 @@ class TestException(TestCase):
             print(stop_exc.value)
         print(getgeneratorstate(exc_coro))
 
+
+class TestReturnValue(TestCase):
+    """
+    测试从 coroutine 中获得返回值
+    """
+    from collections import namedtuple
+    Result = namedtuple('Result', 'count average')
+
+    def averager(self):
+        total = 0.0
+        count = 0
+        average = None
+        while True:
+            term = yield
+            if term is None:  # 循环直到输入 None
+                break
+            total += term
+            count += 1
+            average = total/count
+        # 返回返回值
+        return self.Result(count, average)
+
+    def test_averager(self):
+        coro_avg = self.averager()
+        next(coro_avg)
+        coro_avg.send(10)
+        coro_avg.send(30)
+        coro_avg.send(6.5)
+
+        try:
+            coro_avg.send(None)      # 捕获StopIteration
+        except StopIteration as exc: # 得到返回值
+            result = exc.value
+
+        print(result)
