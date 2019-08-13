@@ -6,7 +6,7 @@ import numpy
 
 class TestListComprehension(TestCase):
     def test_list_set_generator(self):
-        # list comprehension - 能生成 list s和 set；生成全部元素, not iterable, 没有 __next__()
+        # list comprehension - 能生成 list 和 set；生成全部元素, not iterable, 没有 __next__()
         l = [x for x in range(0, 10)]    # 得到 list, __iter__ 返回 list_iterable 对象
         assert(l[3] == 3)
 

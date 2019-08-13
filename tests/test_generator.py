@@ -15,9 +15,9 @@ def gen_AB():
 
 class TestGenerator(TestCase):
     def test_yeild(self):
-        '''
+        """
         gen_AB() 方法返回一个带有 yeild 的结果，也就是一个生成器
-        '''
+        """
         gen_ab = gen_AB()    # gen_ab 是一个 generator
         for c in gen_ab:
             print('-->', c)

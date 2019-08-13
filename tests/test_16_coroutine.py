@@ -32,13 +32,14 @@ class TestCoroutine(TestCase):
         coroutines = [self.simple_coroutine(i) for i in range(2)]
 
         """
-        Primer
+        察看协程的状态
         """
         for coro in coroutines:
             ret = 0
+            # 返回 generator 的状态。
             print(getgeneratorstate(coro))
 
-            ret = next(coro)      # Start coroutine and run to the first yield
+            ret = next(coro)      # SPrimer(预激). tart coroutine and run to the first yield
             print(getgeneratorstate(coro))
             print("Return " + str(ret))
 
@@ -60,16 +61,31 @@ class TestCoroutine(TestCase):
 
 
 class TestException(TestCase):
+    """
+    用携程作为异常处理器的应用：
+
+    我们可以将异常交给一个携程来处理
+    """
+
     class DemoException(Exception):
+        """
+        定义一个即将由主程序抛出的异常
+        """
         pass
     
     def __except_handling(self):
+        """
+        定义一个异常处理器（协程）
+        :return:
+        """
         print('-> coroutine started')
         while True:
             try:
+                # yield 不仅可以接收正常输入（用send传入），还可以接收用 throw 传入的异常
                 x = yield
                 if x == 0:
                     return x
+            # 如果 yield 接收到异常，则处理会被转到这里：
             except self.DemoException:
                 print('*** DemoException handled. Continuing...')
             else:
@@ -79,13 +95,16 @@ class TestException(TestCase):
         exc_coro = self.__except_handling()
         next(exc_coro)
 
+        # 发送正常数据
         exc_coro.send(11)
         exc_coro.send(22)
 
+        # 发送一个异常
         exc_coro.throw(self.DemoException)
 
-        #exc_coro.close()
-        print(getgeneratorstate(exc_coro))
+        # 关闭协程
+        exc_coro.close()
+        print(getgeneratorstate(exc_coro))  # GEN_CLOSED
 
         try:
             """
@@ -95,3 +114,4 @@ class TestException(TestCase):
         except StopIteration as stop_exc:
             print(stop_exc.value)
         print(getgeneratorstate(exc_coro))
+
