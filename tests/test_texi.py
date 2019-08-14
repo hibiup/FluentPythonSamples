@@ -15,7 +15,7 @@ Event = collections.namedtuple('Event', 'time texi_id action')
 
 # BEGIN TAXI_PROCESS
 def taxi_process(texi_id, trips, start_time=0):  # <1>
-    """Yield to simulator issuing event at each state change"""
+    """每次改变状态时创建事件，把控制权让给 Simulator """
     time = yield Event(start_time, texi_id, 'leave garage')  # <2>
     for i in range(trips):  # <3>
         time = yield Event(time, texi_id, 'pick up passenger')  # <4>
