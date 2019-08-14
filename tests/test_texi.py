@@ -14,13 +14,21 @@ Event = collections.namedtuple('Event', 'time texi_id action')
 
 
 # BEGIN TAXI_PROCESS
-def taxi_process(texi_id, trips, start_time=0):  # <1>
-    """每次改变状态时创建事件，把控制权让给 Simulator """
-    time = yield Event(start_time, texi_id, 'leave garage')  # <2>
-    for i in range(trips):  # <3>
-        time = yield Event(time, texi_id, 'pick up passenger')  # <4>
-        time = yield Event(time, texi_id, 'drop off passenger')  # <5>
+def taxi_process(texi_id, trips, start_time=0):
+    # text_process 首先返回包含发车时间 (start_time) 的 Event 以便主程序打印信息
+    # 然后停留在这里等待主程序的下一次调用(send)，当主程序再次调用此协程时同时输入一个 time 参数表示接到客人的时间。
+    time = yield Event(start_time, texi_id, 'leave garage')
 
+    for i in range(trips):
+        # 协程首先返回包含客人的时间的事件给主程序以打印出接客信息，然后挂起等待下一个（卸客）事件
+        # 当主程序再次回到这里的时候（卸客）同样会传入一个时戳，协程将它记为 drop_time
+        drop_time = yield Event(time, texi_id, 'pick up passenger')
+
+        # 协程返回下车事件（包含 drop_time)以便主程序打印信息，然后再次挂起等待下一事件。
+        # 收到下一事件的时间戳，覆盖 time，然后回到循环的开头，循环的开头如果认为今天的任务全部结束了，那么结束循环，否则该 time 被认为是再一次接到客人的时间．
+        time = yield Event(drop_time, texi_id, 'drop off passenger')  # <5>
+
+    # 如果循环结束，那么最后一个时间戳被作为是放工时间．生成并返回放工事件
     yield Event(time, texi_id, 'going home')  # <6>
     # end of taxi process # <7>
 # END TAXI_PROCESS
@@ -28,7 +36,6 @@ def taxi_process(texi_id, trips, start_time=0):  # <1>
 
 # BEGIN TAXI_SIMULATOR
 class Simulator:
-
     def __init__(self, texis_map):
         self.events = queue.PriorityQueue()  # PriorityQueue 取值的时候会自动按最小优先排序取值
         self.texis = dict(texis_map)
@@ -65,7 +72,7 @@ class Simulator:
             print(msg.format(self.events.qsize()))
 # END TAXI_SIMULATOR
 
-
+# 辅助函数
 def compute_duration(previous_action):
     """Compute action duration using exponential distribution"""
     if previous_action in ['leave garage', 'drop off passenger']:
