@@ -72,9 +72,9 @@ class Simulator:
             print(msg.format(self.events.qsize()))
 # END TAXI_SIMULATOR
 
-# 辅助函数
+
+# 辅助函数. 计算下一次事件的时间
 def compute_duration(previous_action):
-    """Compute action duration using exponential distribution"""
     if previous_action in ['leave garage', 'drop off passenger']:
         # new state is prowling
         interval = SEARCH_DURATION
@@ -85,6 +85,7 @@ def compute_duration(previous_action):
         interval = 1
     else:
         raise ValueError('Unknown previous_action: %s' % previous_action)
+    # 产生随机时间间隔
     return int(random.expovariate(1/interval)) + 1
 
 
