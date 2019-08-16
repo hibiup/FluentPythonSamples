@@ -54,10 +54,10 @@ class TestConcurrentProcessing(TestCase):
             future_list = [executor.submit(do_something, timeout) for timeout in self.parameters]
             print("All thread submitted.")
             
-            first_result = [ finished.result() for finished in futures.wait(future_list, return_when=futures.FIRST_COMPLETED).done]
+            first_result = [finished.result() for finished in futures.wait(future_list, return_when=futures.FIRST_COMPLETED).done]
             print(f"First future {first_result} is done!")
 
-            completed_tasks = [ future.result() for future in futures.as_completed(future_list)]
+            completed_tasks = [future.result() for future in futures.as_completed(future_list)]
             print(f"All threads {completed_tasks} are done!")
 
     def test_asyncio(self):
