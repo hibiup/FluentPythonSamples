@@ -5,6 +5,11 @@ import datetime
 import random
 
 
+def callback(results):
+    print(f"Callback function received {results}")
+    return results
+
+
 class ConcurrentFuture(TestCase):
     @classmethod
     def do_something(cls, timeout):
@@ -22,7 +27,7 @@ class ConcurrentFuture(TestCase):
         """
         模拟延迟并将结果返回给 callback 函数
         """
-        callback(cls.do_something(timeout))
+        return callback(cls.do_something(timeout))
 
     thread_number = 5
 
@@ -54,12 +59,9 @@ class ConcurrentFuture(TestCase):
         """
         from concurrent import futures
 
-        def __callback(results):
-            print(f"Callback function received {results}")
-
         with futures.ThreadPoolExecutor(self.thread_number) as executor:
             # 传递一个　callback 函数给r任务
-            res = [executor.submit(self.do_something_with_callback, timeout, __callback) for timeout in random.sample(range(0, self.thread_number), self.thread_number)]
+            res = [executor.submit(self.do_something_with_callback, timeout, callback) for timeout in random.sample(range(0, self.thread_number), self.thread_number)]
             print("All thread submitted.")
 
     def test_multiple_threading_as_complete(self):
@@ -68,9 +70,6 @@ class ConcurrentFuture(TestCase):
         """
         from concurrent import futures
 
-        def __callback(results):
-            print(f"Callback function received {results}")
-
         with futures.ThreadPoolExecutor(self.thread_number) as executor:
             # 对于没有显示 callback 参数的函数，可以通过 as_completed 还获取返回值．（as_completed 也可以捕获异常）
             results = [executor.submit(self.do_something, timeout) for timeout in random.sample(range(0, self.thread_number), self.thread_number)]
@@ -78,7 +77,32 @@ class ConcurrentFuture(TestCase):
 
             # 捕获返回值
             for f in futures.as_completed(results):
-                __callback(f.result())
+                print(callback(f.result()))
+
+    def test_multiple_process_as_complete(self):
+        """
+        也可以通过　futures.as_completed 函数来捕获返回值
+        """
+        from concurrent import futures
+
+        with futures.ProcessPoolExecutor(self.thread_number) as executor:
+            """ 
+            注意：在 Multiple Proces 中传递一个　callback 函数给r任务, 如果希望得到返回值，这个 callback 必须是独立函数。
+            Multiple Thread 则没有这个问题，因为 Thread 之间共享调用栈。
+            """
+            f1 = executor.submit(self.do_something_with_callback, 1, callback)
+            print("One job submitted.")
+            futures.as_completed(f1)
+            print("Job in multiple process pool returns", f1.result())
+
+            """
+            例如以下代码在 Multiple Process 中会出现错误：
+               Error: Can't pickle local object ...
+            """
+            f2 = executor.submit(self.do_something_with_callback, 1, lambda out: "World")
+            print("One job submitted.")
+            futures.as_completed(f2)
+            print("Job in multiple process pool returns", f2.result())
 
 
 class AsyncIOFuture(TestCase):
